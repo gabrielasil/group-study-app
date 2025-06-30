@@ -1,25 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+  Box,
+  Typography,
+  AppBar,
+  Toolbar,
+  Avatar,
+} from "@mui/material";
+import { loggedInUser } from "./data/mock";
+import Dashboard from "./pages/Dashboard";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#dc004e",
+    },
+  },
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Lista de Estudo Colaborativa
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography sx={{ mr: 2 }}>{loggedInUser.name}</Typography>
+              <Avatar alt={loggedInUser.name} src={loggedInUser.avatar} />
+            </Box>
+          </Toolbar>
+        </AppBar>
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, p: 3, backgroundColor: "#f4f6f8" }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <Dashboard />
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 }
 
