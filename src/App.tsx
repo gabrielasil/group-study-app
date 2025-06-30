@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { loggedInUser } from "./data/mock";
 import Footer from "./components/Footer";
-import { Dashboard } from "@mui/icons-material";
+import Dashboard from "./pages/Dashboard";
 
 const theme = createTheme({
   palette: {
