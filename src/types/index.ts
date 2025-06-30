@@ -28,6 +28,14 @@ export interface StudyList {
   topics: Topic[];
 }
 
+export interface StudyEvent {
+  id: string;
+  name: string;
+  dateTime: Date;
+  location: string;
+  creator: User;
+}
+
 export interface Group {
   id: string;
   name: string;
@@ -35,4 +43,5 @@ export interface Group {
   creator: User;
   members: User[];
   studyLists: StudyList[];
+  events: StudyEvent[];
 }

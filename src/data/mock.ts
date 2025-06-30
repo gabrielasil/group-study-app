@@ -10,7 +10,7 @@ export const users: User[] = [
 export const mockGroups: Group[] = [
   {
     id: "group-1",
-    name: "React",
+    name: "Grupo de Estudo de React",
     code: "REACT101",
     creator: users[0],
     members: users,
@@ -52,10 +52,26 @@ export const mockGroups: Group[] = [
         ],
       },
     ],
+    events: [
+      {
+        id: "event-1",
+        name: "Sessão de Dúvidas - Hooks",
+        dateTime: new Date(new Date().setDate(new Date().getDate() + 7)), // 7 days from now
+        location: "Biblioteca Central, Sala 5",
+        creator: users[0],
+      },
+      {
+        id: "event-2",
+        name: "Revisão Pré-Prova (Passado)",
+        dateTime: new Date("2023-05-20T14:00:00"), // Past event
+        location: "Online - Google Meet",
+        creator: users[1],
+      },
+    ],
   },
   {
     id: "group-2",
-    name: "Design Patterns",
+    name: "Grupo de Estudo de Design Patterns",
     code: "DESIGNP202",
     creator: users[2],
     members: [users[0], users[2]],
@@ -83,6 +99,7 @@ export const mockGroups: Group[] = [
         ],
       },
     ],
+    events: [],
   },
   {
     id: "group-3",
@@ -91,6 +108,7 @@ export const mockGroups: Group[] = [
     creator: users[3],
     members: [users[1], users[2], users[3]],
     studyLists: [],
+    events: [],
   },
   {
     id: "group-4",
@@ -99,6 +117,7 @@ export const mockGroups: Group[] = [
     creator: users[0],
     members: [users[0], users[3]],
     studyLists: [],
+    events: [],
   },
   {
     id: "group-5",
@@ -107,6 +126,7 @@ export const mockGroups: Group[] = [
     creator: users[1],
     members: users,
     studyLists: [],
+    events: [],
   },
   {
     id: "group-6",
@@ -115,6 +135,7 @@ export const mockGroups: Group[] = [
     creator: users[3],
     members: [users[1], users[3]],
     studyLists: [],
+    events: [],
   },
 ];
 

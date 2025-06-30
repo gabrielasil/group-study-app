@@ -56,6 +56,7 @@ const Dashboard = () => {
       creator: loggedInUser,
       members: [loggedInUser],
       studyLists: [],
+      events: [],
     };
     setGroups((prevGroups) => [newGroup, ...prevGroups]);
     setOpenCreateGroup(false);
