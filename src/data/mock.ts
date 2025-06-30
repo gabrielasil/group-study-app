@@ -10,7 +10,9 @@ export const users: User[] = [
 export const mockGroups: Group[] = [
   {
     id: "group-1",
-    name: "Grupo de Estudo de React",
+    name: "React",
+    code: "REACT101",
+    creator: users[0],
     members: users,
     studyLists: [
       {
@@ -53,7 +55,9 @@ export const mockGroups: Group[] = [
   },
   {
     id: "group-2",
-    name: "Grupo de Estudo de Design Patterns",
+    name: "Design Patterns",
+    code: "DESIGNP202",
+    creator: users[2],
     members: [users[0], users[2]],
     studyLists: [
       {
@@ -83,24 +87,32 @@ export const mockGroups: Group[] = [
   {
     id: "group-3",
     name: "Tópicos Avançados de Engenharia de Software e Arquitetura de Microsserviços",
+    code: "ARCH303",
+    creator: users[3],
     members: [users[1], users[2], users[3]],
     studyLists: [],
   },
   {
     id: "group-4",
     name: "UX/UI Design",
+    code: "UXUI404",
+    creator: users[0],
     members: [users[0], users[3]],
     studyLists: [],
   },
   {
     id: "group-5",
     name: "Preparatório para Certificação AWS",
+    code: "AWS505",
+    creator: users[1],
     members: users,
     studyLists: [],
   },
   {
     id: "group-6",
     name: "Estruturas de Dados",
+    code: "DATA606",
+    creator: users[3],
     members: [users[1], users[3]],
     studyLists: [],
   },

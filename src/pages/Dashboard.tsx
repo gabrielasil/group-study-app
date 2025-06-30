@@ -9,17 +9,41 @@ import {
   Box,
   Button,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { mockGroups, loggedInUser } from "../data/mock";
 import { Group } from "../types";
 import StudyGroupView from "./StudyGroupView";
 import CreateGroupDialog from "../components/CreateGroupDialog";
+import JoinGroupDialog from "../components/JoinGroupDialog";
 
 const Dashboard = () => {
-  const [groups, setGroups] = useState<Group[]>(mockGroups);
+  // Hide a group the user is not a member of for the demonstration.
+  const groupsToHide = ["DESIGNP202"];
+  const [groups, setGroups] = useState<Group[]>(
+    mockGroups.filter(
+      (g) =>
+        !groupsToHide.includes(g.code) ||
+        g.members.some((m) => m.id === loggedInUser.id)
+    )
+  );
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const [openJoinGroup, setOpenJoinGroup] = useState(false);
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        alert(`Código "${text}" copiado para a área de transferência!`);
+      },
+      (err) => {
+        console.error("Could not copy text: ", err);
+        alert("Não foi possível copiar o código.");
+      }
+    );
+  };
 
   const handleCreateGroup = (newGroupData: {
     name: string;
@@ -28,12 +52,33 @@ const Dashboard = () => {
     const newGroup: Group = {
       id: `group-${Date.now()}`,
       name: newGroupData.name,
-      // Description is not in our Group model, but could be added. For now, we'll ignore it.
-      members: [loggedInUser], // Add the current user as the first member
+      code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+      creator: loggedInUser,
+      members: [loggedInUser],
       studyLists: [],
     };
     setGroups((prevGroups) => [newGroup, ...prevGroups]);
     setOpenCreateGroup(false);
+  };
+
+  const handleJoinGroup = (code: string) => {
+    // Look in the original mockGroups array to find the hidden group
+    const groupToJoin = mockGroups.find((g) => g.code === code);
+    if (!groupToJoin) {
+      alert("Código de grupo inválido!");
+      return;
+    }
+
+    const isAlreadyVisible = groups.some((g) => g.id === groupToJoin.id);
+    if (isAlreadyVisible) {
+      alert("Você já é membro deste grupo!");
+      return;
+    }
+
+    // In a real app, this would be an API call to add the user.
+    // For this mock, we just add the group to the dashboard.
+    setGroups((prevGroups) => [...prevGroups, groupToJoin]);
+    alert(`Você entrou no grupo: ${groupToJoin.name}!`);
   };
 
   if (selectedGroup) {
@@ -65,7 +110,9 @@ const Dashboard = () => {
           >
             Criar Grupo
           </Button>
-          <Button variant="outlined">Entrar em um Grupo</Button>
+          <Button variant="outlined" onClick={() => setOpenJoinGroup(true)}>
+            Entrar em um Grupo
+          </Button>
         </Box>
 
         <Grid container spacing={3}>
@@ -76,8 +123,27 @@ const Dashboard = () => {
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
+                  position: "relative",
+                  "&:hover .copy-button": { opacity: 1 },
                 }}
               >
+                <Tooltip title="Copiar código">
+                  <IconButton
+                    className="copy-button"
+                    size="small"
+                    onClick={() => handleCopyToClipboard(group.code)}
+                    sx={{
+                      position: "absolute",
+                      bottom: 8,
+                      right: 8,
+                      zIndex: 2, // Ensure button is on top
+                      opacity: 0,
+                      transition: "opacity 0.2s",
+                    }}
+                  >
+                    <ContentCopyIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
                 <CardActionArea
                   onClick={() => setSelectedGroup(group)}
                   sx={{ flexGrow: 1 }}
@@ -114,6 +180,11 @@ const Dashboard = () => {
         open={openCreateGroup}
         onClose={() => setOpenCreateGroup(false)}
         onCreate={handleCreateGroup}
+      />
+      <JoinGroupDialog
+        open={openJoinGroup}
+        onClose={() => setOpenJoinGroup(false)}
+        onJoin={handleJoinGroup}
       />
     </>
   );

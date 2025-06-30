@@ -10,10 +10,17 @@ import {
   Tabs,
   Tab,
   Container,
+  Chip,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Group, StudyList, Topic, Comment } from "../types";
 import TopicListItem from "../components/TopicListItem";
+import CreateStudyListDialog from "../components/CreateStudyListDialog";
+import CreateTopicDialog from "../components/CreateTopicDialog";
 import { loggedInUser } from "../data/mock";
 
 interface TabPanelProps {
@@ -49,6 +56,9 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [group, setGroup] = useState<Group>(initialGroup);
+  const [openCreateList, setOpenCreateList] = useState(false);
+  const [openCreateTopic, setOpenCreateTopic] = useState(false);
+  const [currentListId, setCurrentListId] = useState<string | null>(null);
 
   useEffect(() => {
     setGroup(initialGroup);
@@ -81,65 +91,188 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
     setGroup({ ...group, studyLists: updatedLists });
   };
 
+  const handleCreateStudyList = (name: string) => {
+    const newList: StudyList = {
+      id: `list-${Date.now()}`,
+      name,
+      topics: [],
+    };
+    setGroup((prevGroup) => ({
+      ...prevGroup,
+      studyLists: [...prevGroup.studyLists, newList],
+    }));
+  };
+
+  const handleOpenCreateTopicDialog = (listId: string) => {
+    setCurrentListId(listId);
+    setOpenCreateTopic(true);
+  };
+
+  const handleCreateTopic = (topicData: {
+    title: string;
+    priority: Topic["priority"];
+    responsibleId?: string;
+  }) => {
+    const newTopic: Topic = {
+      id: `topic-${Date.now()}`,
+      title: topicData.title,
+      priority: topicData.priority,
+      status: "Não iniciado",
+      comments: [],
+      responsible: group.members.find((u) => u.id === topicData.responsibleId),
+    };
+
+    setGroup((prevGroup) => ({
+      ...prevGroup,
+      studyLists: prevGroup.studyLists.map((list) =>
+        list.id === currentListId
+          ? { ...list, topics: [...list.topics, newTopic] }
+          : list
+      ),
+    }));
+  };
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        alert(`Código "${text}" copiado para a área de transferência!`);
+      },
+      (err) => {
+        console.error("Could not copy text: ", err);
+        alert("Não foi possível copiar o código.");
+      }
+    );
+  };
+
   return (
-    <Container maxWidth="lg">
-      <Button onClick={onBack} sx={{ mb: 2 }}>
-        &larr; Voltar para os Grupos
-      </Button>
-      <Typography variant="h4" gutterBottom>
-        {group.name}
-      </Typography>
-
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={tabIndex}
-          onChange={handleTabChange}
-          aria-label="abas do grupo"
+    <>
+      <Container maxWidth="lg">
+        <Button onClick={onBack} sx={{ mb: 2 }}>
+          &larr; Voltar para os Grupos
+        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
         >
-          <Tab label="Listas de Estudo" />
-          <Tab label="Membros" />
-          <Tab label="Progresso" />
-        </Tabs>
-      </Box>
-
-      <TabPanel value={tabIndex} index={0}>
-        {group.studyLists.map((list: StudyList) => (
-          <Accordion key={list.id} defaultExpanded>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">{list.name}</Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <Paper variant="outlined" sx={{ border: "none" }}>
-                {list.topics.map((topic) => (
-                  <TopicListItem
-                    key={topic.id}
-                    topic={topic}
-                    users={group.members}
-                    onUpdateTopic={handleUpdateTopic}
-                    onAddComment={handleAddComment}
-                  />
-                ))}
-              </Paper>
-            </AccordionDetails>
-          </Accordion>
-        ))}
-        {group.studyLists.length === 0 && (
-          <Typography sx={{ p: 2, color: "text.secondary" }}>
-            Nenhuma lista de estudo foi criada neste grupo ainda.
+          <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
+            {group.name}
           </Typography>
-        )}
-      </TabPanel>
-      <TabPanel value={tabIndex} index={1}>
-        <Typography>Gerenciamento de membros (em breve).</Typography>
-      </TabPanel>
-      <TabPanel value={tabIndex} index={2}>
-        <Typography>Visualização de progresso (em breve).</Typography>
-      </TabPanel>
-    </Container>
+          <Box>
+            <Chip
+              avatar={
+                <Avatar alt={group.creator.name} src={group.creator.avatar} />
+              }
+              label={`Criado por ${group.creator.name}`}
+              variant="outlined"
+              sx={{ mr: 1 }}
+            />
+            <Tooltip title="Copiar código do grupo">
+              <Chip
+                icon={<ContentCopyIcon />}
+                label={group.code}
+                variant="outlined"
+                onClick={() => handleCopyToClipboard(group.code)}
+              />
+            </Tooltip>
+          </Box>
+        </Box>
+
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Tabs
+            value={tabIndex}
+            onChange={handleTabChange}
+            aria-label="abas do grupo"
+          >
+            <Tab label="Listas de Estudo" />
+            <Tab label="Membros" />
+            <Tab label="Progresso" />
+          </Tabs>
+        </Box>
+
+        <TabPanel value={tabIndex} index={0}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenCreateList(true)}
+            >
+              Criar Lista de Estudo
+            </Button>
+          </Box>
+          {group.studyLists.map((list: StudyList) => (
+            <Accordion key={list.id} defaultExpanded>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Typography variant="h6">{list.name}</Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent Accordion from toggling
+                      handleOpenCreateTopicDialog(list.id);
+                    }}
+                    sx={{ mr: 2 }}
+                  >
+                    Adicionar Tópico
+                  </Button>
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0 }}>
+                <Paper variant="outlined" sx={{ border: "none" }}>
+                  {list.topics.map((topic) => (
+                    <TopicListItem
+                      key={topic.id}
+                      topic={topic}
+                      users={group.members}
+                      onUpdateTopic={handleUpdateTopic}
+                      onAddComment={handleAddComment}
+                    />
+                  ))}
+                </Paper>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+          {group.studyLists.length === 0 && (
+            <Typography sx={{ p: 2, color: "text.secondary" }}>
+              Nenhuma lista de estudo foi criada neste grupo ainda.
+            </Typography>
+          )}
+        </TabPanel>
+        <TabPanel value={tabIndex} index={1}>
+          <Typography>Gerenciamento de membros (em breve).</Typography>
+        </TabPanel>
+        <TabPanel value={tabIndex} index={2}>
+          <Typography>Visualização de progresso (em breve).</Typography>
+        </TabPanel>
+      </Container>
+      <CreateStudyListDialog
+        open={openCreateList}
+        onClose={() => setOpenCreateList(false)}
+        onCreate={handleCreateStudyList}
+      />
+      <CreateTopicDialog
+        open={openCreateTopic}
+        users={group.members}
+        onClose={() => setOpenCreateTopic(false)}
+        onCreate={handleCreateTopic}
+      />
+    </>
   );
 };
 
