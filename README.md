@@ -1,7 +1,5 @@
 # Lista de Estudo Colaborativa
 
-![Demonstração do App](https://i.imgur.com/rS7zP2W.png)
-
 Este é um aplicativo web para gerenciamento colaborativo de listas de estudo, construído com React e Material-UI. A plataforma permite que estudantes, organizados em grupos, criem, compartilhem e gerenciem listas de tópicos de estudo de forma dinâmica e interativa.
 
 O objetivo é facilitar a organização de conteúdo, incentivar a colaboração entre pares e aumentar a eficiência dos estudos em grupo.
