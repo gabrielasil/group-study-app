@@ -17,17 +17,23 @@ import StudyGroupView from "./StudyGroupView";
 import CreateGroupDialog from "../components/CreateGroupDialog";
 
 const Dashboard = () => {
+  const [groups, setGroups] = useState<Group[]>(mockGroups);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
 
-  const handleCreateGroup = (newGroup: {
+  const handleCreateGroup = (newGroupData: {
     name: string;
     description: string;
   }) => {
-    // This is where you would typically handle the new group creation,
-    // e.g., by making an API call and updating state.
-    // For now, we just log it to the console.
-    console.log("New Group:", newGroup);
+    const newGroup: Group = {
+      id: `group-${Date.now()}`,
+      name: newGroupData.name,
+      // Description is not in our Group model, but could be added. For now, we'll ignore it.
+      members: [loggedInUser], // Add the current user as the first member
+      studyLists: [],
+    };
+    setGroups((prevGroups) => [newGroup, ...prevGroups]);
+    setOpenCreateGroup(false);
   };
 
   if (selectedGroup) {
@@ -63,7 +69,7 @@ const Dashboard = () => {
         </Box>
 
         <Grid container spacing={3}>
-          {mockGroups.map((group) => (
+          {groups.map((group) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={group.id}>
               <Card
                 sx={{
