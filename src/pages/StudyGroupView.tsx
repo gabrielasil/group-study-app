@@ -18,6 +18,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Group, StudyList, Topic, Comment } from "../types";
 import TopicListItem from "../components/TopicListItem";
 import CreateStudyListDialog from "../components/CreateStudyListDialog";
+import CreateTopicDialog from "../components/CreateTopicDialog";
 import { loggedInUser } from "../data/mock";
 
 interface TabPanelProps {
@@ -54,6 +55,8 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
   const [tabIndex, setTabIndex] = useState(0);
   const [group, setGroup] = useState<Group>(initialGroup);
   const [openCreateList, setOpenCreateList] = useState(false);
+  const [openCreateTopic, setOpenCreateTopic] = useState(false);
+  const [currentListId, setCurrentListId] = useState<string | null>(null);
 
   useEffect(() => {
     setGroup(initialGroup);
@@ -95,6 +98,35 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
     setGroup((prevGroup) => ({
       ...prevGroup,
       studyLists: [...prevGroup.studyLists, newList],
+    }));
+  };
+
+  const handleOpenCreateTopicDialog = (listId: string) => {
+    setCurrentListId(listId);
+    setOpenCreateTopic(true);
+  };
+
+  const handleCreateTopic = (topicData: {
+    title: string;
+    priority: Topic["priority"];
+    responsibleId?: string;
+  }) => {
+    const newTopic: Topic = {
+      id: `topic-${Date.now()}`,
+      title: topicData.title,
+      priority: topicData.priority,
+      status: "Não iniciado",
+      comments: [],
+      responsible: group.members.find((u) => u.id === topicData.responsibleId),
+    };
+
+    setGroup((prevGroup) => ({
+      ...prevGroup,
+      studyLists: prevGroup.studyLists.map((list) =>
+        list.id === currentListId
+          ? { ...list, topics: [...list.topics, newTopic] }
+          : list
+      ),
     }));
   };
 
@@ -153,7 +185,28 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           {group.studyLists.map((list: StudyList) => (
             <Accordion key={list.id} defaultExpanded>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">{list.name}</Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Typography variant="h6">{list.name}</Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent Accordion from toggling
+                      handleOpenCreateTopicDialog(list.id);
+                    }}
+                    sx={{ mr: 2 }}
+                  >
+                    Adicionar Tópico
+                  </Button>
+                </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ p: 0 }}>
                 <Paper variant="outlined" sx={{ border: "none" }}>
@@ -187,6 +240,12 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
         open={openCreateList}
         onClose={() => setOpenCreateList(false)}
         onCreate={handleCreateStudyList}
+      />
+      <CreateTopicDialog
+        open={openCreateTopic}
+        users={group.members}
+        onClose={() => setOpenCreateTopic(false)}
+        onCreate={handleCreateTopic}
       />
     </>
   );
