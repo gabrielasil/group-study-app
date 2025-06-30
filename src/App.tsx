@@ -10,7 +10,8 @@ import {
   Avatar,
 } from "@mui/material";
 import { loggedInUser } from "./data/mock";
-import Dashboard from "./pages/Dashboard";
+import Footer from "./components/Footer";
+import { Dashboard } from "@mui/icons-material";
 
 const theme = createTheme({
   palette: {
@@ -56,6 +57,15 @@ const theme = createTheme({
         },
       },
     },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          borderRadius: 0,
+          boxShadow: "none",
+          backgroundColor: "#1976d2",
+        },
+      },
+    },
   },
 });
 
@@ -63,7 +73,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -81,6 +93,7 @@ function App() {
         >
           <Dashboard />
         </Box>
+        <Footer />
       </Box>
     </ThemeProvider>
   );
