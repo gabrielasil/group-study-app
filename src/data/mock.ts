@@ -10,7 +10,7 @@ export const users: User[] = [
 export const mockGroups: Group[] = [
   {
     id: "group-1",
-    name: "Grupo de Estudo de React",
+    name: "React",
     code: "REACT101",
     creator: users[0],
     members: users,
@@ -55,7 +55,7 @@ export const mockGroups: Group[] = [
   },
   {
     id: "group-2",
-    name: "Grupo de Estudo de Design Patterns",
+    name: "Design Patterns",
     code: "DESIGNP202",
     creator: users[2],
     members: [users[0], users[2]],
