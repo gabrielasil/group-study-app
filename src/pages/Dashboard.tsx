@@ -81,11 +81,19 @@ const Dashboard = () => {
     alert(`Você entrou no grupo: ${groupToJoin.name}!`);
   };
 
+  const handleLeaveGroup = (groupId: string) => {
+    // In a real app, this would be an API call.
+    // Here we just remove the group from the user's list.
+    setGroups((prevGroups) => prevGroups.filter((g) => g.id !== groupId));
+    setSelectedGroup(null); // Go back to the dashboard
+  };
+
   if (selectedGroup) {
     return (
       <StudyGroupView
         group={selectedGroup}
         onBack={() => setSelectedGroup(null)}
+        onLeaveGroup={handleLeaveGroup}
       />
     );
   }

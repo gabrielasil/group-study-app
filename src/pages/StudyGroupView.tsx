@@ -17,14 +17,20 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Group, StudyList, Topic, Comment, User } from "../types";
 import TopicListItem from "../components/TopicListItem";
 import CreateStudyListDialog from "../components/CreateStudyListDialog";
 import CreateTopicDialog from "../components/CreateTopicDialog";
+import LeaveGroupDialog from "../components/LeaveGroupDialog";
 import { loggedInUser } from "../data/mock";
 import { getAvatarUrl } from "../utils/avatar";
 
@@ -53,17 +59,34 @@ function TabPanel(props: TabPanelProps) {
 interface StudyGroupViewProps {
   group: Group;
   onBack: () => void;
+  onLeaveGroup: (groupId: string) => void;
 }
 
 const StudyGroupView: React.FC<StudyGroupViewProps> = ({
   group: initialGroup,
   onBack,
+  onLeaveGroup,
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [group, setGroup] = useState<Group>(initialGroup);
   const [openCreateList, setOpenCreateList] = useState(false);
   const [openCreateTopic, setOpenCreateTopic] = useState(false);
   const [currentListId, setCurrentListId] = useState<string | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOpenLeaveDialog = () => {
+    setLeaveDialogOpen(true);
+    handleMenuClose();
+  };
 
   useEffect(() => {
     setGroup(initialGroup);
@@ -170,10 +193,13 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
             {group.name}
           </Typography>
-          <Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Chip
               avatar={
-                <Avatar alt={group.creator.name} src={group.creator.avatar} />
+                <Avatar
+                  alt={group.creator.name}
+                  src={getAvatarUrl(group.creator)}
+                />
               }
               label={`Criado por ${group.creator.name}`}
               variant="outlined"
@@ -185,8 +211,31 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
                 label={group.code}
                 variant="outlined"
                 onClick={() => handleCopyToClipboard(group.code)}
+                sx={{ mr: 1 }}
               />
             </Tooltip>
+            <Tooltip title="Mais opções">
+              <IconButton
+                aria-label="mais opções"
+                aria-controls="long-menu"
+                aria-haspopup="true"
+                onClick={handleMenuClick}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              id="long-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleOpenLeaveDialog}>
+                <ExitToAppIcon sx={{ mr: 1 }} />
+                Sair do Grupo
+              </MenuItem>
+            </Menu>
           </Box>
         </Box>
 
@@ -287,6 +336,12 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
         users={group.members}
         onClose={() => setOpenCreateTopic(false)}
         onCreate={handleCreateTopic}
+      />
+      <LeaveGroupDialog
+        open={leaveDialogOpen}
+        onClose={() => setLeaveDialogOpen(false)}
+        onConfirm={() => onLeaveGroup(group.id)}
+        groupName={group.name}
       />
     </>
   );
