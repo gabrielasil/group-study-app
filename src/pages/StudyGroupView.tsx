@@ -12,9 +12,11 @@ import {
   Container,
   Chip,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Group, StudyList, Topic, Comment } from "../types";
 import TopicListItem from "../components/TopicListItem";
 import CreateStudyListDialog from "../components/CreateStudyListDialog";
@@ -134,6 +136,18 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
     setTabIndex(newValue);
   };
 
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        alert(`Código "${text}" copiado para a área de transferência!`);
+      },
+      (err) => {
+        console.error("Could not copy text: ", err);
+        alert("Não foi possível copiar o código.");
+      }
+    );
+  };
+
   return (
     <>
       <Container maxWidth="lg">
@@ -151,13 +165,24 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
             {group.name}
           </Typography>
-          <Chip
-            avatar={
-              <Avatar alt={group.creator.name} src={group.creator.avatar} />
-            }
-            label={`Criado por ${group.creator.name}`}
-            variant="outlined"
-          />
+          <Box>
+            <Chip
+              avatar={
+                <Avatar alt={group.creator.name} src={group.creator.avatar} />
+              }
+              label={`Criado por ${group.creator.name}`}
+              variant="outlined"
+              sx={{ mr: 1 }}
+            />
+            <Tooltip title="Copiar código do grupo">
+              <Chip
+                icon={<ContentCopyIcon />}
+                label={group.code}
+                variant="outlined"
+                onClick={() => handleCopyToClipboard(group.code)}
+              />
+            </Tooltip>
+          </Box>
         </Box>
 
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

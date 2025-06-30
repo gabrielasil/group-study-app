@@ -31,6 +31,7 @@ export interface StudyList {
 export interface Group {
   id: string;
   name: string;
+  code: string;
   creator: User;
   members: User[];
   studyLists: StudyList[];
