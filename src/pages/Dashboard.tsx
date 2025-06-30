@@ -134,7 +134,7 @@ const Dashboard = () => {
                     onClick={() => handleCopyToClipboard(group.code)}
                     sx={{
                       position: "absolute",
-                      top: 8,
+                      bottom: 8,
                       right: 8,
                       zIndex: 2, // Ensure button is on top
                       opacity: 0,
