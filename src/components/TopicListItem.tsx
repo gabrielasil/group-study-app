@@ -19,6 +19,7 @@ import { CommentSection } from "react-comments-section";
 import "react-comments-section/dist/index.css";
 import { Topic, User, TopicStatus, Comment } from "../types";
 import { loggedInUser } from "../data/mock";
+import { getAvatarUrl } from "../utils/avatar";
 
 interface TopicListItemProps {
   topic: Topic;
@@ -26,35 +27,6 @@ interface TopicListItemProps {
   onUpdateTopic: (updatedTopic: Topic) => void;
   onAddComment: (topicId: string, commentText: string) => void;
 }
-
-const avatarColors = [
-  "F44336",
-  "E91E63",
-  "9C27B0",
-  "673AB7",
-  "3F51B5",
-  "2196F3",
-  "00BCD4",
-  "009688",
-  "4CAF50",
-  "8BC34A",
-  "CDDC39",
-  "FFC107",
-  "FF9800",
-  "FF5722",
-  "795548",
-  "607D8B",
-];
-
-const getAvatarUrl = (user: User) => {
-  const nameForApi = user.name.replace(/\s/g, "+");
-  // Simple hash from user ID to get a consistent color
-  const colorIndex =
-    user.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
-    avatarColors.length;
-  const color = avatarColors[colorIndex];
-  return `https://ui-avatars.com/api/?name=${nameForApi}&background=${color}&color=fff&bold=true`;
-};
 
 const statusColors: { [key in TopicStatus]: "error" | "warning" | "success" } =
   {

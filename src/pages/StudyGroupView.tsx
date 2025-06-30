@@ -13,15 +13,20 @@ import {
   Chip,
   Avatar,
   Tooltip,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { Group, StudyList, Topic, Comment } from "../types";
+import { Group, StudyList, Topic, Comment, User } from "../types";
 import TopicListItem from "../components/TopicListItem";
 import CreateStudyListDialog from "../components/CreateStudyListDialog";
 import CreateTopicDialog from "../components/CreateTopicDialog";
 import { loggedInUser } from "../data/mock";
+import { getAvatarUrl } from "../utils/avatar";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -255,7 +260,18 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           )}
         </TabPanel>
         <TabPanel value={tabIndex} index={1}>
-          <Typography>Gerenciamento de membros (em breve).</Typography>
+          <Paper>
+            <List>
+              {group.members.map((member: User) => (
+                <ListItem key={member.id}>
+                  <ListItemAvatar>
+                    <Avatar src={getAvatarUrl(member)} />
+                  </ListItemAvatar>
+                  <ListItemText primary={member.name} />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
           <Typography>Visualização de progresso (em breve).</Typography>
