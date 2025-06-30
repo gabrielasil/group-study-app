@@ -18,7 +18,43 @@ const theme = createTheme({
       main: "#1976d2",
     },
     secondary: {
-      main: "#dc004e",
+      main: "#43a047",
+    },
+    background: {
+      default: "#f4f6f8",
+    },
+    text: {
+      primary: "#212121",
+      secondary: "#616161",
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontWeight: 700,
+    },
+    h5: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 500,
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: "12px",
+          boxShadow: "rgba(0, 0, 0, 0.05) 0px 1px 2px 0px",
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: "12px",
+        },
+      },
     },
   },
 });
@@ -41,7 +77,7 @@ function App() {
         </AppBar>
         <Box
           component="main"
-          sx={{ flexGrow: 1, p: 3, backgroundColor: "#f4f6f8" }}
+          sx={{ flexGrow: 1, p: 3, backgroundColor: "background.default" }}
         >
           <Dashboard />
         </Box>
