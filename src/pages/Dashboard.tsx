@@ -8,6 +8,7 @@ import {
   CardActionArea,
   Box,
   Button,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { mockGroups, loggedInUser } from "../data/mock";
@@ -23,7 +24,9 @@ const Dashboard = () => {
     name: string;
     description: string;
   }) => {
-    // Mock creating group
+    // This is where you would typically handle the new group creation,
+    // e.g., by making an API call and updating state.
+    // For now, we just log it to the console.
     console.log("New Group:", newGroup);
   };
 
@@ -61,14 +64,36 @@ const Dashboard = () => {
 
         <Grid container spacing={3}>
           {mockGroups.map((group) => (
-            <Grid item xs={12} md={6} lg={4} key={group.id}>
-              <Card>
-                <CardActionArea onClick={() => setSelectedGroup(group)}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={group.id}>
+              <Card
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <CardActionArea
+                  onClick={() => setSelectedGroup(group)}
+                  sx={{ flexGrow: 1 }}
+                >
                   <CardContent>
-                    <Typography variant="h5" component="div">
-                      {group.name}
-                    </Typography>
-                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                    <Tooltip title={group.name} placement="top">
+                      <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {group.name}
+                      </Typography>
+                    </Tooltip>
+                    <Typography
+                      sx={{ mt: 1.5, mb: 1.5 }}
+                      color="text.secondary"
+                    >
                       {group.members.length} membros
                     </Typography>
                   </CardContent>

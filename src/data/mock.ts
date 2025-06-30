@@ -80,6 +80,30 @@ export const mockGroups: Group[] = [
       },
     ],
   },
+  {
+    id: "group-3",
+    name: "Tópicos Avançados de Engenharia de Software e Arquitetura de Microsserviços",
+    members: [users[1], users[2], users[3]],
+    studyLists: [],
+  },
+  {
+    id: "group-4",
+    name: "UX/UI Design",
+    members: [users[0], users[3]],
+    studyLists: [],
+  },
+  {
+    id: "group-5",
+    name: "Preparatório para Certificação AWS",
+    members: users,
+    studyLists: [],
+  },
+  {
+    id: "group-6",
+    name: "Estruturas de Dados",
+    members: [users[1], users[3]],
+    studyLists: [],
+  },
 ];
 
 // Assume a "logged in" user

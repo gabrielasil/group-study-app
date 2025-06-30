@@ -114,9 +114,7 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
               onChange={handleResponsibleChange}
               displayEmpty
               renderValue={(selected) => {
-                if (!selected) {
-                  return <em>Não atribuído</em>;
-                }
+                if (!selected) return <em>Não atribuído</em>;
                 const user = users.find((u) => u.id === selected);
                 return (
                   <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -166,16 +164,7 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
             }}
             logIn={{ loginLink: "#", signUpLink: "#" }}
             commentData={commentData}
-            onSubmitAction={(data: {
-              userId: string;
-              comId: string;
-              avatarUrl: string;
-              userProfile?: string;
-              fullName: string;
-              text: string;
-              replies: any;
-              commentId: string;
-            }) => {
+            onSubmitAction={(data: { text: string }) => {
               onAddComment(topic.id, data.text);
             }}
           />
