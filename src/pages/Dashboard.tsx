@@ -28,8 +28,8 @@ const Dashboard = () => {
     const newGroup: Group = {
       id: `group-${Date.now()}`,
       name: newGroupData.name,
-      // Description is not in our Group model, but could be added. For now, we'll ignore it.
-      members: [loggedInUser], // Add the current user as the first member
+      creator: loggedInUser,
+      members: [loggedInUser],
       studyLists: [],
     };
     setGroups((prevGroups) => [newGroup, ...prevGroups]);
