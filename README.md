@@ -16,6 +16,7 @@ O objetivo é facilitar a organização de conteúdo, incentivar a colaboração
 - **Avatares Dinâmicos**: Avatares de usuário são gerados dinamicamente com base no nome, utilizando a API `ui-avatars.com` para uma identificação visual clara.
 - **Visualização de Membros**: Veja facilmente todos os membros de um grupo.
 - **Sair de um Grupo**: Os usuários podem sair dos grupos dos quais não desejam mais fazer parte.
+- **Agendamento de Eventos**: Crie eventos de estudo para o grupo, com data, hora e local. Eventos passados não podem ser removidos, mantendo o histórico.
 
 ## Como Executar o Projeto
 

@@ -20,17 +20,25 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Card,
+  CardContent,
+  CardActions,
+  Divider,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { Group, StudyList, Topic, Comment, User } from "../types";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EventIcon from "@mui/icons-material/Event";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { Group, StudyList, Topic, Comment, User, StudyEvent } from "../types";
 import TopicListItem from "../components/TopicListItem";
 import CreateStudyListDialog from "../components/CreateStudyListDialog";
 import CreateTopicDialog from "../components/CreateTopicDialog";
 import LeaveGroupDialog from "../components/LeaveGroupDialog";
+import CreateEventDialog from "../components/CreateEventDialog";
 import { loggedInUser } from "../data/mock";
 import { getAvatarUrl } from "../utils/avatar";
 
@@ -74,6 +82,7 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
   const [currentListId, setCurrentListId] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+  const [openCreateEvent, setOpenCreateEvent] = useState(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -176,6 +185,31 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
     );
   };
 
+  const handleCreateEvent = (eventData: {
+    name: string;
+    location: string;
+    dateTime: Date;
+  }) => {
+    const newEvent: StudyEvent = {
+      id: `event-${Date.now()}`,
+      creator: loggedInUser,
+      ...eventData,
+    };
+    setGroup((prevGroup) => ({
+      ...prevGroup,
+      events: [...prevGroup.events, newEvent].sort(
+        (a, b) => a.dateTime.getTime() - b.dateTime.getTime()
+      ),
+    }));
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    setGroup((prevGroup) => ({
+      ...prevGroup,
+      events: prevGroup.events.filter((e) => e.id !== eventId),
+    }));
+  };
+
   return (
     <>
       <Container maxWidth="lg">
@@ -247,6 +281,7 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           >
             <Tab label="Listas de Estudo" />
             <Tab label="Membros" />
+            <Tab label="Eventos" />
             <Tab label="Progresso" />
           </Tabs>
         </Box>
@@ -323,6 +358,100 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           </Paper>
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenCreateEvent(true)}
+            >
+              Criar Evento
+            </Button>
+          </Box>
+          <List>
+            {group.events.map((event) => {
+              const isPast = new Date(event.dateTime) < new Date();
+              return (
+                <Card
+                  key={event.id}
+                  variant="outlined"
+                  sx={{ mb: 2, opacity: isPast ? 0.6 : 1 }}
+                >
+                  <CardContent>
+                    <Typography variant="h6">{event.name}</Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "text.secondary",
+                        mt: 1,
+                        mb: 1,
+                      }}
+                    >
+                      <EventIcon sx={{ mr: 1 }} fontSize="small" />
+                      <Typography variant="body2">
+                        {new Date(event.dateTime).toLocaleString("pt-BR", {
+                          dateStyle: "full",
+                          timeStyle: "short",
+                        })}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "text.secondary",
+                      }}
+                    >
+                      <LocationOnIcon sx={{ mr: 1 }} fontSize="small" />
+                      <Typography variant="body2">{event.location}</Typography>
+                    </Box>
+                  </CardContent>
+                  <Divider />
+                  <CardActions sx={{ justifyContent: "space-between" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        pl: 1,
+                      }}
+                    >
+                      <Avatar
+                        src={getAvatarUrl(event.creator)}
+                        sx={{ width: 24, height: 24, mr: 1 }}
+                      />
+                      <Typography variant="caption" color="text.secondary">
+                        Criado por {event.creator.name}
+                      </Typography>
+                    </Box>
+                    <Tooltip
+                      title={
+                        isPast
+                          ? "Não é possível apagar eventos passados"
+                          : "Apagar evento"
+                      }
+                    >
+                      <span>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeleteEvent(event.id)}
+                          disabled={isPast}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </CardActions>
+                </Card>
+              );
+            })}
+          </List>
+          {group.events.length === 0 && (
+            <Typography sx={{ p: 2, color: "text.secondary" }}>
+              Nenhum evento agendado para este grupo ainda.
+            </Typography>
+          )}
+        </TabPanel>
+        <TabPanel value={tabIndex} index={3}>
           <Typography>Visualização de progresso (em breve).</Typography>
         </TabPanel>
       </Container>
@@ -342,6 +471,11 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
         onClose={() => setLeaveDialogOpen(false)}
         onConfirm={() => onLeaveGroup(group.id)}
         groupName={group.name}
+      />
+      <CreateEventDialog
+        open={openCreateEvent}
+        onClose={() => setOpenCreateEvent(false)}
+        onCreate={handleCreateEvent}
       />
     </>
   );
