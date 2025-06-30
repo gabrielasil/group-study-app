@@ -12,12 +12,14 @@ import {
   IconButton,
   Card,
   Modal,
+  FormControl,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
 import { CommentSection } from "react-comments-section";
 import "react-comments-section/dist/index.css";
-import { Topic, User, TopicStatus } from "../types";
+import { Topic, User, TopicStatus, Comment } from "../types";
 import { loggedInUser } from "../data/mock";
+import { getAvatarUrl } from "../utils/avatar";
 
 interface TopicListItemProps {
   topic: Topic;
@@ -52,7 +54,9 @@ const modalStyle = {
   p: 4,
   borderRadius: "12px",
   maxHeight: "80vh",
-  overflow: "auto",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "visible",
 };
 
 const TopicListItem: React.FC<TopicListItemProps> = ({
@@ -73,19 +77,25 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
   };
 
   // Adapt our data to the library's format
-  const commentData = topic.comments.map((c) => ({
+  const commentData = topic.comments.map((c: Comment) => ({
     userId: c.author.id,
     comId: c.id,
     fullName: c.author.name,
     text: c.text,
-    avatarUrl: c.author.avatar,
+    avatarUrl: getAvatarUrl(c.author),
     replies: [],
   }));
 
   return (
     <>
-      <Card sx={{ mb: 1, p: 1 }}>
-        <ListItem>
+      <Card variant="outlined" sx={{ mb: 1, p: 1, borderRadius: 2 }}>
+        <ListItem
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <ListItemText
             primary={topic.title}
             secondary={
@@ -97,52 +107,67 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
               />
             }
           />
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Select
-              value={topic.status}
-              onChange={handleStatusChange}
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="Não iniciado">Não iniciado</MenuItem>
-              <MenuItem value="Em revisão">Em revisão</MenuItem>
-              <MenuItem value="Estudado">Estudado</MenuItem>
-            </Select>
-            <Chip label={topic.status} color={statusColors[topic.status]} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <FormControl sx={{ m: 1, minWidth: 140 }}>
+              <Select
+                value={topic.status}
+                onChange={handleStatusChange}
+                variant="outlined"
+                size="small"
+              >
+                <MenuItem value="Não iniciado">Não iniciado</MenuItem>
+                <MenuItem value="Em revisão">Em revisão</MenuItem>
+                <MenuItem value="Estudado">Estudado</MenuItem>
+              </Select>
+            </FormControl>
 
-            <Select
-              value={topic.responsible?.id || ""}
-              onChange={handleResponsibleChange}
-              displayEmpty
-              renderValue={(selected) => {
-                if (!selected) return <em>Não atribuído</em>;
-                const user = users.find((u) => u.id === selected);
-                return (
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Chip
+              label={topic.status}
+              color={statusColors[topic.status]}
+              sx={{ width: 110 }}
+            />
+
+            <FormControl sx={{ m: 1, minWidth: 150 }}>
+              <Select
+                value={topic.responsible?.id || ""}
+                onChange={handleResponsibleChange}
+                displayEmpty
+                variant="outlined"
+                size="small"
+                renderValue={(selected) => {
+                  if (!selected) {
+                    return (
+                      <Typography color="text.secondary" sx={{ ml: 1 }}>
+                        Não atribuído
+                      </Typography>
+                    );
+                  }
+                  const user = users.find((u) => u.id === selected);
+                  return (
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar
+                        src={user ? getAvatarUrl(user) : ""}
+                        sx={{ width: 24, height: 24, mr: 1 }}
+                      />
+                      {user?.name}
+                    </Box>
+                  );
+                }}
+              >
+                <MenuItem value="">
+                  <Typography color="text.secondary">Não atribuído</Typography>
+                </MenuItem>
+                {users.map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
                     <Avatar
-                      src={user?.avatar}
-                      sx={{ width: 24, height: 24, mr: 1 }}
-                    />
-                    {user?.name}
-                  </Box>
-                );
-              }}
-              sx={{ minWidth: 180 }}
-            >
-              <MenuItem value="" disabled>
-                <em>Não atribuído</em>
-              </MenuItem>
-              {users.map((user) => (
-                <MenuItem key={user.id} value={user.id}>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Avatar
-                      src={user.avatar}
+                      src={getAvatarUrl(user)}
                       sx={{ width: 24, height: 24, mr: 1 }}
                     />
                     <Typography>{user.name}</Typography>
-                  </Box>
-                </MenuItem>
-              ))}
-            </Select>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <IconButton onClick={() => setCommentsOpen(true)}>
               <CommentIcon />
             </IconButton>
@@ -152,22 +177,24 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
 
       <Modal open={commentsOpen} onClose={() => setCommentsOpen(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          <Typography variant="h6" component="h2" sx={{ mb: 2, flexShrink: 0 }}>
             Comentários em "{topic.title}"
           </Typography>
-          <CommentSection
-            currentUser={{
-              currentUserId: loggedInUser.id,
-              currentUserImg: loggedInUser.avatar,
-              currentUserFullName: loggedInUser.name,
-              currentUserProfile: "#",
-            }}
-            logIn={{ loginLink: "#", signUpLink: "#" }}
-            commentData={commentData}
-            onSubmitAction={(data: { text: string }) => {
-              onAddComment(topic.id, data.text);
-            }}
-          />
+          <Box sx={{ overflow: "auto" }}>
+            <CommentSection
+              currentUser={{
+                currentUserId: loggedInUser.id,
+                currentUserImg: getAvatarUrl(loggedInUser),
+                currentUserFullName: loggedInUser.name,
+                currentUserProfile: "#",
+              }}
+              logIn={{ loginLink: "#", signUpLink: "#" }}
+              commentData={commentData}
+              onSubmitAction={(data: { text: string }) => {
+                onAddComment(topic.id, data.text);
+              }}
+            />
+          </Box>
         </Box>
       </Modal>
     </>
