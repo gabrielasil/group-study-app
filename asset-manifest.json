@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/group-study-app/static/css/main.bd9ae5c9.css",
-    "main.js": "/group-study-app/static/js/main.22d1d309.js",
+    "main.js": "/group-study-app/static/js/main.c277d83a.js",
     "index.html": "/group-study-app/index.html",
     "static/media/svg": "/group-study-app/static/media/2a0bc34f2fdf6d6b.6e0f8a48a90f41998086.svg",
     "main.bd9ae5c9.css.map": "/group-study-app/static/css/main.bd9ae5c9.css.map",
-    "main.22d1d309.js.map": "/group-study-app/static/js/main.22d1d309.js.map"
+    "main.c277d83a.js.map": "/group-study-app/static/js/main.c277d83a.js.map"
   },
   "entrypoints": [
     "static/css/main.bd9ae5c9.css",
-    "static/js/main.22d1d309.js"
+    "static/js/main.c277d83a.js"
   ]
 }
