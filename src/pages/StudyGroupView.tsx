@@ -39,6 +39,7 @@ import CreateStudyListDialog from "../components/CreateStudyListDialog";
 import CreateTopicDialog from "../components/CreateTopicDialog";
 import LeaveGroupDialog from "../components/LeaveGroupDialog";
 import CreateEventDialog from "../components/CreateEventDialog";
+import ConfirmationDialog from "../components/ConfirmationDialog";
 import { loggedInUser } from "../data/mock";
 import { getAvatarUrl } from "../utils/avatar";
 
@@ -83,6 +84,11 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [openCreateEvent, setOpenCreateEvent] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    open: boolean;
+    type: "topic" | "event" | null;
+    id: string | null;
+  }>({ open: false, type: null, id: null });
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -109,6 +115,10 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
       ),
     }));
     setGroup({ ...group, studyLists: updatedLists });
+  };
+
+  const handleDeleteTopic = (topicId: string) => {
+    setDeleteConfirmation({ open: true, type: "topic", id: topicId });
   };
 
   const handleAddComment = (topicId: string, commentText: string) => {
@@ -204,10 +214,27 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    setGroup((prevGroup) => ({
-      ...prevGroup,
-      events: prevGroup.events.filter((e) => e.id !== eventId),
-    }));
+    setDeleteConfirmation({ open: true, type: "event", id: eventId });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleteConfirmation.id || !deleteConfirmation.type) return;
+
+    if (deleteConfirmation.type === "topic") {
+      const updatedLists = group.studyLists.map((list) => ({
+        ...list,
+        topics: list.topics.filter((t) => t.id !== deleteConfirmation.id),
+      }));
+      setGroup({ ...group, studyLists: updatedLists });
+    } else if (deleteConfirmation.type === "event") {
+      setGroup((prevGroup) => ({
+        ...prevGroup,
+        events: prevGroup.events.filter((e) => e.id !== deleteConfirmation.id),
+      }));
+    }
+
+    // Close the dialog
+    setDeleteConfirmation({ open: false, type: null, id: null });
   };
 
   return (
@@ -329,8 +356,10 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
                       key={topic.id}
                       topic={topic}
                       users={group.members}
+                      groupCreator={group.creator}
                       onUpdateTopic={handleUpdateTopic}
                       onAddComment={handleAddComment}
+                      onDeleteTopic={handleDeleteTopic}
                     />
                   ))}
                 </Paper>
@@ -369,7 +398,7 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
           </Box>
           <List>
             {group.events.map((event) => {
-              const isPast = new Date(event.dateTime) < new Date();
+              const isPast = event.dateTime.getTime() < new Date().getTime();
               return (
                 <Card
                   key={event.id}
@@ -423,23 +452,25 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
                         Criado por {event.creator.name}
                       </Typography>
                     </Box>
-                    <Tooltip
-                      title={
-                        isPast
-                          ? "Não é possível apagar eventos passados"
-                          : "Apagar evento"
-                      }
-                    >
-                      <span>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDeleteEvent(event.id)}
-                          disabled={isPast}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
+                    {loggedInUser.id === group.creator.id && (
+                      <Tooltip
+                        title={
+                          isPast
+                            ? "Não é possível apagar eventos passados"
+                            : "Apagar evento"
+                        }
+                      >
+                        <span>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDeleteEvent(event.id)}
+                            disabled={isPast}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    )}
                   </CardActions>
                 </Card>
               );
@@ -476,6 +507,19 @@ const StudyGroupView: React.FC<StudyGroupViewProps> = ({
         open={openCreateEvent}
         onClose={() => setOpenCreateEvent(false)}
         onCreate={handleCreateEvent}
+      />
+      <ConfirmationDialog
+        open={deleteConfirmation.open}
+        onClose={() =>
+          setDeleteConfirmation({ open: false, type: null, id: null })
+        }
+        onConfirm={handleConfirmDelete}
+        title={`Confirmar Exclusão de ${
+          deleteConfirmation.type === "topic" ? "Tópico" : "Evento"
+        }`}
+        message={`Você tem certeza que deseja excluir este ${
+          deleteConfirmation.type === "topic" ? "tópico" : "evento"
+        }? Esta ação não pode ser desfeita.`}
       />
     </>
   );

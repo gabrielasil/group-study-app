@@ -14,6 +14,7 @@ import {
   Modal,
   FormControl,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import CommentIcon from "@mui/icons-material/Comment";
 import { CommentSection } from "react-comments-section";
 import "react-comments-section/dist/index.css";
@@ -24,8 +25,10 @@ import { getAvatarUrl } from "../utils/avatar";
 interface TopicListItemProps {
   topic: Topic;
   users: User[];
+  groupCreator: User;
   onUpdateTopic: (updatedTopic: Topic) => void;
   onAddComment: (topicId: string, commentText: string) => void;
+  onDeleteTopic: (topicId: string) => void;
 }
 
 const statusColors: { [key in TopicStatus]: "error" | "warning" | "success" } =
@@ -62,8 +65,10 @@ const modalStyle = {
 const TopicListItem: React.FC<TopicListItemProps> = ({
   topic,
   users,
+  groupCreator,
   onUpdateTopic,
   onAddComment,
+  onDeleteTopic,
 }) => {
   const [commentsOpen, setCommentsOpen] = useState(false);
 
@@ -171,6 +176,11 @@ const TopicListItem: React.FC<TopicListItemProps> = ({
             <IconButton onClick={() => setCommentsOpen(true)}>
               <CommentIcon />
             </IconButton>
+            {loggedInUser.id === groupCreator.id && (
+              <IconButton color="error" onClick={() => onDeleteTopic(topic.id)}>
+                <DeleteIcon />
+              </IconButton>
+            )}
           </Box>
         </ListItem>
       </Card>
